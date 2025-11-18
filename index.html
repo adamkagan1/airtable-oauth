@@ -4,6 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Redirecting...</title>
+
     <style>
       body {
         font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
@@ -71,6 +72,7 @@
     <script>
       (function () {
         try {
+          // Get the current URL parameters
           const params = new URLSearchParams(window.location.search);
           const code = params.get("code");
           const state = params.get("state");
@@ -91,18 +93,45 @@
             return;
           }
 
+          // Build the deep link URL
           const deepLink = `vibecode://oauth?code=${encodeURIComponent(
             code
           )}&state=${encodeURIComponent(state || "")}`;
-          window.location.href = deepLink;
 
+          // Method 1: Try iframe (works on some iOS versions)
+          var iframe = document.createElement("iframe");
+          iframe.style.display = "none";
+          iframe.src = deepLink;
+          document.body.appendChild(iframe);
+
+          // Method 2: Try window.location
+          setTimeout(function () {
+            window.location.href = deepLink;
+          }, 100);
+
+          // Method 3: Try window.open
+          setTimeout(function () {
+            window.open(deepLink, "_self");
+          }, 200);
+
+          // Show success message
           setTimeout(function () {
             document.getElementById("message").textContent =
-              "If the app did not open, please return to the app manually.";
-          }, 2000);
+              "Redirecting to app...";
+          }, 500);
+
+          // Fallback: auto-close window after attempt
+          setTimeout(function () {
+            document.getElementById("message").textContent =
+              "Please close this window and return to the app.";
+
+            // Try to close the window
+            window.close();
+          }, 3000);
         } catch (err) {
           document.getElementById("message").className = "error";
-          document.getElementById("message").textContent = "Error: " + err.message;
+          document.getElementById("message").textContent =
+            "Error: " + err.message;
         }
       })();
     </script>
