@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Redirecting...</title>
+    <style>
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 100vh;
+        margin: 0;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      }
+
+      .container {
+        background: white;
+        padding: 2rem;
+        border-radius: 12px;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+        text-align: center;
+        max-width: 400px;
+      }
+
+      .spinner {
+        border: 4px solid #f3f3f3;
+        border-top: 4px solid #667eea;
+        border-radius: 50%;
+        width: 40px;
+        height: 40px;
+        animation: spin 1s linear infinite;
+        margin: 0 auto 1rem;
+      }
+
+      @keyframes spin {
+        0% {
+          transform: rotate(0deg);
+        }
+        100% {
+          transform: rotate(360deg);
+        }
+      }
+
+      h1 {
+        color: #333;
+        font-size: 1.5rem;
+        margin-bottom: 0.5rem;
+      }
+
+      p {
+        color: #666;
+        font-size: 0.9rem;
+      }
+
+      .error {
+        color: #dc3545;
+        margin-top: 1rem;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="container">
+      <div class="spinner"></div>
+      <h1>Redirecting...</h1>
+      <p id="message">Opening your app...</p>
+    </div>
+
+    <script>
+      (function () {
+        try {
+          const params = new URLSearchParams(window.location.search);
+          const code = params.get("code");
+          const state = params.get("state");
+          const error = params.get("error");
+          const errorDescription = params.get("error_description");
+
+          if (error) {
+            document.getElementById("message").className = "error";
+            document.getElementById("message").textContent =
+              "Authentication error: " + (errorDescription || error);
+            return;
+          }
+
+          if (!code) {
+            document.getElementById("message").className = "error";
+            document.getElementById("message").textContent =
+              "No authorization code received";
+            return;
+          }
+
+          const deepLink = `vibecode://oauth?code=${encodeURIComponent(
+            code
+          )}&state=${encodeURIComponent(state || "")}`;
+          window.location.href = deepLink;
+
+          setTimeout(function () {
+            document.getElementById("message").textContent =
+              "If the app did not open, please return to the app manually.";
+          }, 2000);
+        } catch (err) {
+          document.getElementById("message").className = "error";
+          document.getElementById("message").textContent = "Error: " + err.message;
+        }
+      })();
+    </script>
+  </body>
+</html>
